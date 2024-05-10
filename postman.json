@@ -1,0 +1,51 @@
+{
+  "info": {
+    "_postman_id": "replace-with-generated-id", 
+    "name": "Dynamic Demo Backend API Tests", 
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    { 
+      "name": "Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { 
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"externalId\": \"unique_user_id\"\n}" // Adapt with other properties 
+        },
+        "url": {
+          "raw": "{{baseURL}}/users",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": [] 
+    }, 
+    {
+      "name": "Get User",
+      // ... Similar structure as above
+    },
+    // Add items for other requests (Create Wallet, Get User's Wallets, etc.)
+  ],
+  "variable": [
+    {
+      "id": "baseURL",
+      "key": "baseURL",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    // Add variables for authorization tokens or other dynamic values
+  ]
+}

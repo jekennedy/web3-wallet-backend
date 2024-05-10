@@ -1,0 +1,115 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { ethers } from 'ethers';
+import { BigNumber } from '@ethersproject/bignumber';
+
+import { WalletsService } from './wallets.service';
+import { UsersService } from '../users/users.service';
+import { createMockUser, createMockWallet } from '../../test/test-utils';
+
+const mockWalletsRepository = {
+  createWallet: jest.fn(),
+  findOneByExternalId: jest.fn(),
+};
+
+const mockUsersService = {
+  findOneByExternalId: jest.fn(),
+  createUser: jest.fn(),
+};
+
+const mockEthersProvider = {
+  getBalance: jest.fn(),
+  createWallet: jest.fn(),
+};
+
+describe('WalletsService', () => {
+  let service: WalletsService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        WalletsService,
+        {
+          provide: UsersService,
+          useValue: mockUsersService,
+        },
+        {
+          provide: 'ETHERS_PROVIDER',
+          useValue: mockEthersProvider,
+        },
+      ],
+    }).compile();
+
+    service = module.get<WalletsService>(WalletsService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  describe('createWallet', () => {
+    it('should create a new wallet for an existing user', async () => {
+      const createWalletDto = { userId: '123' };
+      const wallet = createMockWallet();
+      const user = createMockUser();
+
+      jest
+        .spyOn(mockUsersService, 'findOneByExternalId')
+        .mockResolvedValue(user);
+      jest.spyOn(mockUsersService, 'createUser').mockResolvedValue(user);
+      jest.spyOn(mockEthersProvider, 'createWallet').mockResolvedValue(wallet);
+
+      const result = await service.createWallet(createWalletDto);
+
+      expect(result).toEqual(wallet);
+      expect(mockUsersService.findOneByExternalId).toHaveBeenCalledWith('123');
+      expect(mockWalletsRepository.createWallet).toHaveBeenCalledWith(
+        wallet.address,
+        wallet.privateKey,
+        user,
+      );
+    });
+  });
+
+  describe('getBalance', () => {
+    it('should retrieve and format wallet balance', async () => {
+      const userId = '123';
+      const wallet = createMockWallet();
+      const balance = BigNumber.from('1000000000000000000'); // 1 ETH
+
+      jest
+        .spyOn(mockWalletsRepository, 'findOneByExternalId')
+        .mockResolvedValue(wallet);
+      jest
+        .spyOn(mockEthersProvider, 'getBalance')
+        .mockResolvedValue(BigInt(balance.toBigInt()));
+
+      const result = await service.getBalance(userId);
+
+      expect(result).toBe('1.0');
+      expect(mockEthersProvider.getBalance).toHaveBeenCalledWith(
+        wallet.address,
+      );
+    });
+  });
+
+  describe('signMessage', () => {
+    it("should sign a message with the user's wallet", async () => {
+      const userId = '123';
+      const wallet = createMockWallet();
+      const message = 'Hello, Dynamic!';
+      const signature = 'signedMessage123';
+
+      jest
+        .spyOn(mockWalletsRepository, 'findOneByExternalId')
+        .mockResolvedValue(wallet);
+      jest
+        .spyOn(ethers.Wallet.prototype, 'signMessage')
+        .mockResolvedValue(signature);
+
+      const result = await service.signMessage(userId, message);
+
+      expect(result).toBe(signature);
+      expect(ethers.Wallet.prototype.signMessage).toHaveBeenCalledWith(message);
+    });
+  });
+});
