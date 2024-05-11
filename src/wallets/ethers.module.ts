@@ -9,8 +9,15 @@ import { JsonRpcProvider } from '@ethersproject/providers';
     {
       provide: 'ETHERS_PROVIDER',
       useFactory: (configService: ConfigService) => {
-        const providerUrl = configService.get<string>('RPC_SEPOLIA');
-        return new JsonRpcProvider(providerUrl);
+        const providerUrl = configService.get<string>('RPC_URL');
+        if (!providerUrl) {
+          throw new Error('RPC URL not configured.');
+        }
+        // Specifying the network details
+        return new JsonRpcProvider(providerUrl, {
+          name: 'sepolia',
+          chainId: 11155111,
+        });
       },
       inject: [ConfigService],
     },

@@ -19,3 +19,10 @@ export class GetBalanceDto {
   userId: string;
   address: string;
 }
+
+export class WalletDto {
+  readonly id: number;
+  readonly address: string;
+  readonly userId: string;
+  // Exclude privateKey property from serialization
+}

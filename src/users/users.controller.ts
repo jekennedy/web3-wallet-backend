@@ -44,7 +44,7 @@ export class UsersController {
   }
 
   //TODO should this be inverted?
-  @Get('/internal/:id')
+  @Get(':id/internal')
   @UseGuards(AuthGuard('jwt'))
   async findOneByInternalId(@Param('id') userId: number): Promise<User> {
     this.logger.debug(
@@ -54,7 +54,9 @@ export class UsersController {
     return this.usersService.findOne(userId);
   }
 
+  /*
   //TODO
+  // Testing method
   @Get('/test-auth')
   @UseGuards(AuthGuard('jwt'))
   async testAuth(@Req() req: Request): Promise<string> {
@@ -62,8 +64,6 @@ export class UsersController {
     return 'You are authenticated!'; // This should only be reachable if validation passes
   }
 
-  /*
-  //TODO
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
     update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

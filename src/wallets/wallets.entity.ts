@@ -16,9 +16,10 @@ export class Wallet {
   @Column()
   address: string;
 
+  // Exclude this field from queries by default
+  @Column({ name: 'private_key', select: false })
   @Exclude()
-  @Column({ name: 'private_key' })
-  privateKey: string; // TODO encrypt or think about KMS
+  privateKey: string;
 
   @ManyToOne(() => User, (user) => user.wallets)
   @JoinColumn({ name: 'user_id' })

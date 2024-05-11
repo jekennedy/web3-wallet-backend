@@ -37,11 +37,14 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     await this.checkDatabaseAndSchema();
-    return this.repository.find();
+    return this.repository.find({ relations: ['wallets'] });
   }
 
   async findOne(id: number): Promise<User> {
-    const user = await this.repository.findOne({ where: { id } });
+    const user = await this.repository.findOne({
+      where: { id },
+      relations: ['wallets'],
+    });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found.`);
@@ -53,6 +56,7 @@ export class UsersService {
   async findOneByExternalId(externalId: string): Promise<User> {
     const user = await this.repository.findOne({
       where: { externalId: externalId },
+      relations: ['wallets'],
     });
 
     if (!user) {

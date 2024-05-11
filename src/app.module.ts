@@ -7,12 +7,14 @@ import { UsersModule } from './users/users.module';
 import { WalletsModule } from './wallets/wallets.module';
 import dynamicConfig from './config/dynamic.config';
 import { typeOrmConfig } from './config/typeorm.config';
+import databaseConfig from './config/database.config';
+import walletConfig from './config/wallet.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Makes ConfigModule accessible in all other modules
-      load: [dynamicConfig],
+      load: [dynamicConfig, databaseConfig, walletConfig],
     }),
     TypeOrmModule.forRootAsync(typeOrmConfig),
     AuthModule,

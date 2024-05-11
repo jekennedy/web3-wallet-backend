@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as jwt from 'jsonwebtoken'; // Or your preferred library of choice
+import * as jwt from 'jsonwebtoken';
+import { ConfigKeys } from 'src/config/config.keys';
 
 @Injectable()
 export class AuthService {
@@ -8,8 +9,9 @@ export class AuthService {
 
   async validateUser(token: string): Promise<any> {
     try {
-      const dynamicPublicKey =
-        this.configService.get<string>('dynamic.publicKey');
+      const dynamicPublicKey = this.configService.get<string>(
+        ConfigKeys.PUBLIC_KEY,
+      );
 
       const decoded = jwt.verify(token, dynamicPublicKey, {
         algorithms: ['RS256'],

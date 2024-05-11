@@ -9,11 +9,15 @@ import {
   Get,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { AuthGuard } from '@nestjs/passport';
 
 import { WalletsService } from './wallets.service';
-import { Wallet } from './wallets.entity';
-import { CreateWalletDto, GetBalanceDto, SignMessageDto } from './wallets.dto';
-import { AuthGuard } from '@nestjs/passport';
+import {
+  CreateWalletDto,
+  GetBalanceDto,
+  SignMessageDto,
+  WalletDto,
+} from './wallets.dto';
 
 @Controller('wallets')
 export class WalletsController {
@@ -26,7 +30,7 @@ export class WalletsController {
   async createWallet(
     @Req() req: Request,
     @Body() createWalletDto: CreateWalletDto,
-  ): Promise<Wallet> {
+  ): Promise<WalletDto> {
     // userId is extracted from the jwt and set in the request by DynamicStrategy
     createWalletDto.userId = req.user.userId;
     this.logger.debug(
