@@ -4,6 +4,11 @@ export function encryptPrivateKey(privateKey: string, key: string): string {
   if (!key) {
     throw new Error('Encryption key is required');
   }
+  if (Buffer.from(key, 'hex').length !== 32) {
+    throw new Error(
+      'Invalid key length: Key must be 256 bits (64 hex characters)',
+    );
+  }
 
   const iv = randomBytes(16);
   const cipher = createCipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
@@ -12,23 +17,25 @@ export function encryptPrivateKey(privateKey: string, key: string): string {
   return iv.toString('hex') + encryptedPrivateKey;
 }
 
-export function decryptPrivateKey(
-  encryptedPrivateKey: string,
-  key: string,
-): string {
+export function decryptPrivateKey(privateKey: string, key: string): string {
   if (!key) {
     throw new Error('Encryption key is not configured');
   }
+  if (Buffer.from(key, 'hex').length !== 32) {
+    throw new Error(
+      'Invalid key length: Key must be 256 bits (64 hex characters)',
+    );
+  }
 
-  // Extract initialization vector (first 16 characters) from the encrypted private key
-  const iv = Buffer.from(encryptedPrivateKey.slice(0, 32), 'hex');
-  // Extract the actual encrypted private key (remaining characters)
-  const encryptedData = encryptedPrivateKey.slice(32);
+  const iv = Buffer.from(privateKey.slice(0, 32), 'hex');
+  const encryptedData = privateKey.slice(32);
 
-  // Create a decipher object with the same algorithm and key
   const decipher = createDecipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
-  // Decrypt the encrypted private key
   let decryptedPrivateKey = decipher.update(encryptedData, 'hex', 'utf8');
-  decryptedPrivateKey += decipher.final('utf8');
+  try {
+    decryptedPrivateKey += decipher.final('utf8');
+  } catch (error) {
+    throw new Error('Decryption failed: ' + error.message);
+  }
   return decryptedPrivateKey;
 }

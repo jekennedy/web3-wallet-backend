@@ -21,18 +21,13 @@ import {
 import { ConfigKeys } from 'src/config/config.keys';
 import { inspect } from 'node:util';
 import { Provider, TransactionReceipt } from '@ethersproject/providers';
+import { BlockchainConfig } from 'src/config/blockchain.config';
 
 @Injectable()
 export class WalletsService {
   private readonly logger = new Logger(WalletsService.name);
-
-  /*
-  private readonly maxPriorityFeePerGas: bigint = ethers.parseUnits(
-    '2',
-    'gwei',
-  );
-  private readonly maxFeePerGas: bigint = ethers.utils.parseUnits('100', 'gwei');
-  */
+  private readonly encryptionKey: string;
+  private readonly blockchainConfig: BlockchainConfig;
 
   constructor(
     private configService: ConfigService,
@@ -41,7 +36,19 @@ export class WalletsService {
     private ethersProvider: Provider,
     @InjectRepository(Wallet)
     private repository: Repository<Wallet>,
-  ) {}
+  ) {
+    this.encryptionKey = this.configService.get<string>(
+      ConfigKeys.ENCRYPTION_KEY,
+      { infer: true },
+    );
+    this.blockchainConfig = this.configService.get<BlockchainConfig>(
+      ConfigKeys.CONFIG_BLOCKCHAIN,
+    );
+
+    if (!this.blockchainConfig.encryptionKey) {
+      throw new Error('Encryption key has not been configured');
+    }
+  }
 
   async createWallet(createWalletDto: CreateWalletDto): Promise<WalletDto> {
     // Ensure user exists (or create if needed)
@@ -55,27 +62,22 @@ export class WalletsService {
     }
 
     const wallet = ethers.Wallet.createRandom();
-    const key = this.configService.get<string>(ConfigKeys.ENCRYPTION_KEY);
 
-    this.logger.debug(`encrypting ${wallet.privateKey} with ${key}`);
-
-    //TODO encrypt the private key
     const newWallet = this.repository.create({
       address: wallet.address,
-      privateKey: encryptPrivateKey(wallet.privateKey, key),
+      privateKey: encryptPrivateKey(wallet.privateKey, this.encryptionKey),
       user: user,
     });
 
     const savedWallet = await this.repository.save(newWallet);
 
     // fund the wallet to get them started
-    await this.fundWallet({
+    this.fundWallet({
       destination: savedWallet.address,
-      amountInEther: '0.01',
+      amountInEther: this.blockchainConfig.fundingAmountEth,
     });
 
     return this.toDto(savedWallet);
-    //return plainToClass(Wallet, savedWallet, { excludeExtraneousValues: true });
   }
 
   async getBalance(getBalanceDto: GetBalanceDto): Promise<string> {
@@ -85,7 +87,7 @@ export class WalletsService {
     });
 
     const balance = await this.ethersProvider.getBalance(wallet.address);
-    this.logger.debug(`balance is ${balance}`);
+    this.logger.debug(`balance of ${wallet.address} is ${balance}`);
     return ethers.utils.formatEther(balance.toString());
   }
 
@@ -93,18 +95,39 @@ export class WalletsService {
     const wallet = await this.getUserWallet({
       address: signMessageDto.address,
       userId: signMessageDto.userId,
+      includePrivateKey: true,
     });
 
-    const key = this.configService.get<string>(ConfigKeys.ENCRYPTION_KEY);
-    const signer = new ethers.Wallet(decryptPrivateKey(wallet.privateKey, key));
+    const signer = new ethers.Wallet(
+      decryptPrivateKey(wallet.privateKey, this.encryptionKey),
+    );
     return signer.signMessage(signMessageDto.message);
   }
 
-  async findOneByAddress(address: string): Promise<Wallet | null> {
-    return this.repository.findOne({
+  async findOneByAddress(
+    address: string,
+    includePrivateKey: boolean = false,
+  ): Promise<Wallet | null> {
+    const selectFields: (keyof Wallet)[] = [
+      'id',
+      'address',
+      'createdAt',
+      'updatedAt',
+      'user',
+    ];
+
+    if (includePrivateKey) {
+      selectFields.push('privateKey' as keyof Wallet);
+      this.logger.debug('including private key in query');
+    }
+
+    const wallet = await this.repository.findOne({
       where: { address },
+      select: selectFields,
       relations: ['user'],
     });
+
+    return wallet;
   }
 
   async findOneById(id: number): Promise<Wallet | null> {
@@ -114,14 +137,17 @@ export class WalletsService {
   async getUserWallet({
     address,
     userId,
+    includePrivateKey = false,
   }: {
     address: string;
     userId: string;
+    includePrivateKey?: boolean;
   }): Promise<Wallet> {
-    const wallet = await this.findOneByAddress(address);
+    const wallet = await this.findOneByAddress(address, includePrivateKey);
 
-    this.logger.debug(`found wallet: ${wallet.id}`);
-    this.logger.debug(`found wallet: ${wallet.user.externalId}`);
+    this.logger.debug(
+      `found wallet id: ${wallet.id} for userId: ${wallet.user.externalId}`,
+    );
 
     if (!wallet) {
       throw new BadRequestException('Wallet not found');
@@ -132,14 +158,6 @@ export class WalletsService {
     }
 
     return wallet;
-  }
-
-  private toDto(wallet: Wallet): WalletDto {
-    return {
-      id: wallet.id,
-      address: wallet.address,
-      userId: wallet.user.externalId,
-    };
   }
 
   async fundWallet({
@@ -163,22 +181,21 @@ export class WalletsService {
     );
 
     const blockNumber = await this.ethersProvider.getBlockNumber();
-    this.logger.debug(`Blocknumber is: ${blockNumber}`);
+    this.logger.debug(`Provider verification: blocknumber is: ${blockNumber}`);
 
     const wallet = new ethers.Wallet(funderPrivateKey, this.ethersProvider);
     const amountInWei = ethers.utils.parseEther(amountInEther);
 
     try {
-      this.logger.debug(`Destination type is ${typeof destination}`);
-      this.logger.debug(`Amount in Ether type is ${typeof amountInEther}`);
-      this.logger.debug(`Amount in Wei type is ${typeof amountInWei}`);
-
       // Construct the transaction object
       const txResponse = await wallet.sendTransaction({
         to: destination,
         value: amountInWei,
-        gasLimit: 21000, // You can also let ethers estimate the gas limit, but setting it manually for simple transfers
-        gasPrice: ethers.utils.parseUnits('50', 'gwei'), // Adjust gas price as necessary
+        gasLimit: this.blockchainConfig.gasLimit,
+        gasPrice: ethers.utils.parseUnits(
+          this.blockchainConfig.gasPriceGwei,
+          'gwei',
+        ),
       });
 
       const receipt = await txResponse.wait();
@@ -191,40 +208,13 @@ export class WalletsService {
     }
   }
 
-  /*
-  private fundWallet({
-    destination,
-    amountInEther,
-  }: {
-    destination: string;
-    amountInEther: string;
-  }): Promise<TransactionReceipt> {
-    return new Promise(async (resolve, reject) => {
-      const wallet = new ethers.Wallet(
-        this.configService.get<string>(ConfigKeys.FUNDER_PRIVATE_KEY),
-        this.ethersProvider,
-      );
-      const tx = {
-        to: destination,
-        value: ethers.parseEther(amountInEther),
-        gasLimit: 21000, // Standard gas limit for Ether transfers
-        maxFeePerGas: this.maxFeePerGas,
-        maxPriorityFeePerGas: this.maxPriorityFeePerGas,
-      };
-
-      try {
-        const txResponse = await wallet.sendTransaction(tx);
-        // Wait for the transaction to be mined
-        const receipt = await txResponse.wait();
-        this.logger.debug(`Funded ${amountInEther} ETH to ${destination}`);
-        resolve(receipt);
-      } catch (error) {
-        this.logger.error('Error funding wallet:', error);
-        reject(error);
-      }
-    });
+  private toDto(wallet: Wallet): WalletDto {
+    return {
+      id: wallet.id,
+      address: wallet.address,
+      userId: wallet.user.externalId,
+    };
   }
-  */
 
   // TODO consider other wallet interaction methods
 }

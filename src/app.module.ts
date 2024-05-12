@@ -8,12 +8,12 @@ import { WalletsModule } from './wallets/wallets.module';
 import dynamicConfig from './config/dynamic.config';
 import { typeOrmConfig } from './config/typeorm.config';
 import databaseConfig from './config/database.config';
-import walletConfig from './config/wallet.config';
+import walletConfig from './config/blockchain.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Makes ConfigModule accessible in all other modules
+      isGlobal: true,
       load: [dynamicConfig, databaseConfig, walletConfig],
     }),
     TypeOrmModule.forRootAsync(typeOrmConfig),
