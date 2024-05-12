@@ -40,28 +40,12 @@ export class WalletsController {
     return this.walletsService.createWallet(createWalletDto);
   }
 
-  @Post(':address/sign')
-  @UseGuards(AuthGuard('jwt'))
-  async signMessage(
-    @Req() req: Request,
-    @Param('address') address: string,
-    @Body() signMessageDto: SignMessageDto,
-  ): Promise<string> {
-    signMessageDto.userId = req.user.userId;
-    signMessageDto.address = address;
-    this.logger.debug(
-      'POST signMessage() - Signing message with data:',
-      signMessageDto,
-    );
-    return this.walletsService.signMessage(signMessageDto);
-  }
-
   @Get(':address/balance')
   @UseGuards(AuthGuard('jwt'))
   async getBalance(
     @Req() req: Request,
     @Param('address') address: string,
-  ): Promise<string> {
+  ): Promise<{ balance: string }> {
     const getBalanceDto: GetBalanceDto = {
       address: address,
       userId: req.user.userId,
@@ -70,6 +54,25 @@ export class WalletsController {
       'GET getBalance() - Retrieving balance with data:',
       getBalanceDto,
     );
-    return this.walletsService.getBalance(getBalanceDto);
+    const balance = await this.walletsService.getBalance(getBalanceDto);
+    return { balance };
+  }
+
+  @Post(':address/sign')
+  @UseGuards(AuthGuard('jwt'))
+  async signMessage(
+    @Req() req: Request,
+    @Param('address') address: string,
+    @Body() signMessageDto: SignMessageDto,
+  ): Promise<{ message: string }> {
+    signMessageDto.userId = req.user.userId;
+    signMessageDto.address = address;
+    this.logger.debug(
+      'POST signMessage() - Signing message with data:',
+      signMessageDto,
+    );
+
+    const message = await this.walletsService.signMessage(signMessageDto);
+    return { message };
   }
 }

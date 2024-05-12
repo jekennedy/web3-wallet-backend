@@ -71,7 +71,7 @@ Path Parameters:
 
 Endpoint: `POST /wallets/{address}/sign`
 
-Signs a message with the private key of a wallet. The user initiating this request must own the specified wallet.
+Signs a message with the private key of a wallet. The user initiating this request must own the specified wallet. Note: Next version will store signed messages in the configured database.
 
 Path Parameters:
 
