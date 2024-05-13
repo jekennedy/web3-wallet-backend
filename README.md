@@ -40,7 +40,6 @@ The Ethereum-related configurations are as follows:
 - `ENCRYPTION_KEY`: The key used to encrypt wallet private keys prior to storage.
 - `FUNDER_PRIVATE_KEY`: The private key for an Ethereum wallet, used to fund transactions as necessary.
 - `FUNDING_AMOUNT_ETH`: Optionally specify the amount of ETH to fund new wallets, specified in ether. Default: `0.01`.
-- `GAS_PRICE_GWEI`: Optionally specify gas price for transactions, specified in Gwei. Default: 50.
 - `GAS_LIMIT`: Optionally specify the gas limit for transactions. Default: 21000.
 
 ### Other
