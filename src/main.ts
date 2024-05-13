@@ -23,7 +23,7 @@ async function bootstrap() {
     origin: configService.get('ALLOWED_ORIGINS'),
   });
 
-  await app.listen(configService.get('HTTP_PORT') || 4000);
+  await app.listen(process.env.PORT || 3000);
 }
 
 bootstrap();
