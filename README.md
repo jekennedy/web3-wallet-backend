@@ -46,6 +46,7 @@ The Ethereum-related configurations are as follows:
 ### Other
 
 - `ALLOWED_ORIGINS`: Specifies the origins that are permitted to access the backend services, which is crucial for CORS configuration. This should be a comma-separated list that includes both the protocol and the port, for example, `https://localhost:3000`.
+- `DEBUG_LOG`: Set this to `true` to enable logging of request data.
 
 ## Usage
 

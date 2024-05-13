@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +11,8 @@ import { CreateUserDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private repository: Repository<User>,
@@ -32,31 +35,35 @@ export class UsersService {
       externalId: createUserDto.userId,
     });
 
+    this.logger.debug('Created user: ', newUser.id);
     return await this.repository.save(newUser);
   }
 
   async findAll(): Promise<User[]> {
-    await this.checkDatabaseAndSchema();
-    return this.repository.find({ relations: ['wallets'] });
+    const users = await this.repository.find({
+      relations: ['wallets', 'transactions'],
+    });
+    return users;
   }
 
   async findOne(id: number): Promise<User> {
     const user = await this.repository.findOne({
       where: { id },
-      relations: ['wallets'],
+      relations: ['wallets', 'transactions'],
     });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found.`);
     }
 
+    this.logger.debug('Found user by internal id: ', user.id);
     return user;
   }
 
   async findOneByExternalId(externalId: string): Promise<User> {
     const user = await this.repository.findOne({
       where: { externalId: externalId },
-      relations: ['wallets'],
+      relations: ['wallets', 'transactions'],
     });
 
     if (!user) {
@@ -65,9 +72,11 @@ export class UsersService {
       );
     }
 
+    this.logger.debug('Found user by external id: ', user.externalId);
     return user;
   }
 
+  /*
   async checkDatabaseAndSchema() {
     // Fetch current database
     const currentDatabase = await this.repository.query(
@@ -85,6 +94,7 @@ export class UsersService {
     const allUsers = await this.repository.query('SELECT * from users;');
     console.log('All users:', allUsers[0]);
   }
+  */
 
   // TODO other methods like update(), delete()
 }

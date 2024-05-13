@@ -4,7 +4,6 @@ import {
   Body,
   Param,
   UseGuards,
-  Logger,
   Req,
   Get,
 } from '@nestjs/common';
@@ -13,31 +12,23 @@ import { AuthGuard } from '@nestjs/passport';
 
 import { WalletsService } from './wallets.service';
 import {
-  CreateWalletDto,
   GetBalanceDto,
+  SendTransactionDto,
+  SendTransactionRequestDto,
   SignMessageDto,
-  WalletDto,
+  SignMessageRequestDto,
 } from './wallets.dto';
+import { validateDTO } from 'src/utils/validation-utils';
+import { Wallet } from './wallets.entity';
 
 @Controller('wallets')
 export class WalletsController {
   constructor(private readonly walletsService: WalletsService) {}
 
-  private readonly logger = new Logger(WalletsController.name);
-
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  async createWallet(
-    @Req() req: Request,
-    @Body() createWalletDto: CreateWalletDto,
-  ): Promise<WalletDto> {
-    // userId is extracted from the jwt and set in the request by DynamicStrategy
-    createWalletDto.userId = req.user.userId;
-    this.logger.debug(
-      'POST createWallet() - Creating wallet with data:',
-      createWalletDto,
-    );
-    return this.walletsService.createWallet(createWalletDto);
+  async createWallet(@Req() req: Request): Promise<Wallet> {
+    return this.walletsService.createWallet(req.user.userId);
   }
 
   @Get(':address/balance')
@@ -50,10 +41,7 @@ export class WalletsController {
       address: address,
       userId: req.user.userId,
     };
-    this.logger.debug(
-      'GET getBalance() - Retrieving balance with data:',
-      getBalanceDto,
-    );
+    validateDTO(getBalanceDto);
     const balance = await this.walletsService.getBalance(getBalanceDto);
     return { balance };
   }
@@ -63,16 +51,36 @@ export class WalletsController {
   async signMessage(
     @Req() req: Request,
     @Param('address') address: string,
-    @Body() signMessageDto: SignMessageDto,
+    @Body() signMessageRequestDto: SignMessageRequestDto,
   ): Promise<{ message: string }> {
-    signMessageDto.userId = req.user.userId;
-    signMessageDto.address = address;
-    this.logger.debug(
-      'POST signMessage() - Signing message with data:',
-      signMessageDto,
-    );
+    const signMessageDto: SignMessageDto = {
+      userId: req.user.userId,
+      address: address,
+      ...signMessageRequestDto,
+    };
+    validateDTO(signMessageDto);
 
     const message = await this.walletsService.signMessage(signMessageDto);
     return { message };
+  }
+
+  @Post(':address/sendTransaction')
+  @UseGuards(AuthGuard('jwt'))
+  async sendTransaction(
+    @Req() req: Request,
+    @Param('address') fromAddress: string,
+    @Body() sendTransactionRequestDto: SendTransactionRequestDto,
+  ): Promise<{ transactionHash: string }> {
+    const sendTransactionDto: SendTransactionDto = {
+      userId: req.user.userId,
+      fromAddress: fromAddress,
+      ...sendTransactionRequestDto,
+    };
+    validateDTO(sendTransactionDto);
+
+    // Call the service method to handle the transaction logic
+    const transactionHash =
+      await this.walletsService.sendTransaction(sendTransactionDto);
+    return { transactionHash };
   }
 }

@@ -8,10 +8,11 @@ import { JwtStrategy } from '../auth/jwt.strategy';
 import { EthersModule } from './ethers.module';
 import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { Transaction } from './transactions.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Wallet]),
+    TypeOrmModule.forFeature([Wallet, Transaction]),
     EthersModule,
     AuthModule,
     UsersModule,

@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
@@ -6,7 +6,6 @@ import { ConfigKeys } from '../config/config.keys';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  private readonly logger = new Logger(JwtStrategy.name);
   constructor(private configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -21,8 +20,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   private getFormattedPublicKey(): string {
-    this.logger.debug('getFormattedPublicKey()');
-
     const base64PublicKey = this.configService.get<string>(
       ConfigKeys.PUBLIC_KEY,
     );
@@ -39,8 +36,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: any): Promise<{ userId: string }> {
-    this.logger.debug('validate() - Validating payload:', payload); // Log the payload
-
     // Check if 'sub' exists and is not null
     if (!payload || !payload.sub) {
       throw new UnauthorizedException('Missing or invalid "sub" claim in JWT');

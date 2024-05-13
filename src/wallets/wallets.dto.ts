@@ -1,13 +1,18 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateWalletDto {
-  // leaving out validators as the AuthGuard sets the userId (from the jwt)
-  //TODO add more fields for creating a wallet (like wallet name?)
-  userId: string;
+export class SignMessageRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  readonly message: string;
 }
 
 export class SignMessageDto {
+  @IsString()
+  @IsNotEmpty()
   userId: string;
+
+  @IsString()
+  @IsNotEmpty()
   address: string;
 
   @IsString()
@@ -16,13 +21,37 @@ export class SignMessageDto {
 }
 
 export class GetBalanceDto {
-  userId: string;
-  address: string;
+  @IsString()
+  @IsNotEmpty()
+  readonly userId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly address: string;
 }
 
-export class WalletDto {
-  readonly id: number;
-  readonly address: string;
-  readonly userId: string;
-  // Exclude privateKey property from serialization
+export class SendTransactionRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  readonly toAddress: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly amount: string;
+}
+export class SendTransactionDto {
+  @IsString()
+  userId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  fromAddress: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly toAddress: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly amount: string;
 }
