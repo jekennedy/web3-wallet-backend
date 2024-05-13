@@ -8,7 +8,11 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
   inject: [ConfigService],
   useFactory: async (configService: ConfigService) => ({
     type: 'postgres',
-    logging: true,
+    logging: false,
+    ssl: {
+      // This is important for Heroku because it doesn't provide a CA certificate for its PostgreSQL service
+      rejectUnauthorized: false,
+    },
     host: configService.get(ConfigKeys.DB_HOST_KEY),
     port: configService.get(ConfigKeys.DB_PORT_KEY),
     username: configService.get(ConfigKeys.DB_USERNAME_KEY),
