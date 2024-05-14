@@ -1,0 +1,326 @@
+{
+	"info": {
+		"_postman_id": "780b96bd-b53e-4cd1-bd46-3ff65e7016c8",
+		"name": "Web3 Wallet Backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5621279"
+	},
+	"item": [
+		{
+			"name": "TEST",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"1234\",\n  \"name\": \"John Doe\",\n  \"exp\": 1780624727,\n  \"iat\": 1516239022\n}",
+							"type": "string"
+						},
+						{
+							"key": "privateKey",
+							"value": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCZ43Hsndp5aRnJ\nNhdlJ0oxGqRW6TDn5tosDWd4HwU/RQrr68y0XkHWRRz3VrCflJl4Ke5pZ5a3VYtG\nmg2tjOfNdzzm2JuHb9Y1qiVTwiin5dKG7aICIJD7l6vm5GIYzl+R2e03p0t9cnX5\najzflZq6R9lhpALp1KL+1QjXTDCzPMBZ2ioSLYkV4xi17foTtrRu9KWs78B/iDv4\neZUazTwwHaA7BTvRwkiNMLGUAy2Y0EpWAR1EOFpos4f7M88P1MNXIbhb1KmJHQlG\nx+GL0bPyVqZaD17DGQtyP5hzE6V5/IhrR7c9qZOGs+2ZX5+h1JohDX8D+Gvm064y\n9mUvzkHjAgMBAAECggEABj4LOdTCI41jDqme9pm/Ip0nalpkJhzIX+90WjZrjxG+\nXWZOSEjy5o80bMdbjSq3heiZ5O8NnFg9LUO4hFGkSkKRtCShDhzDuIhKom1A1R9x\nlCgkG5y1qrHtK0uM6msMrwoDOJL9iE5dr6hLfMJYL0G3xrLRfftJtVpBSXbajuCA\nt1MabJQneyiDNNn00l3iPXt3yjZ2s7bgcjeLdyh/PumajtGLbpPyQbyNc6SDKlcX\n/srpfK6+R5rY1s5NwYu/9+0/D+IeBzELI63pFAuJo3ATvXT+eJg23J3zfb5ENJYx\nPQy4Zjlq0IoQJ2KhB3LnD+zZcwasSHR/B+M/BqaycQKBgQDHjttcswhu4bn+TdCj\nFBQtiDqYJNL20G9HgQHn07uAb5so/sKFSGZH7r9ydQ60jrdr8SZygIomIM3LFvnf\nQ1q6+fwJ77nE/d9KLok/zsE6aY+T118I6ZidRiyXC6NDvxZ8RJfQ6GyXDOjHojUT\ncLArEfiNOd35Llzzg9LevHc42wKBgQDFadl43NgBv9W+yO3zG6IMXjlQLGMwViI+\nx/RrlFZ1gOy0ocYHVccty4cLQnK1tjKpUbnxbH4PQH8jp+VaC7rVoROsyk9AaEdV\n4wOd2ODmU1NOhZg09LAG5bDTOokeDnaWgYZlflbpmxbDCxOkRHF3Mw1+XAHPamE5\nz6bNn6MFmQKBgGhweJfETyaQ1mGkYgvnR0QpJtlXdF2d6o9WkiO9KUVno6HJ6w4M\nPRNqfSGu57pRcud4NvH4GdUol+uxI6bYPlTa3jBpGSVi5IiTYFtXnsMuWek6707f\nynKNNmr6uUCMcn0o/PdlnOdU50MLvpFlCZ4Q8q8e2PA/doAvvp25rv+/AoGARelD\na8sB8DSolIUBx4tsquafc2YUxmRqgkM7qvGAYOKEcT+tKqHVBMHEFFe22eUpMc9Q\ng1ABoJMds1ndHjNzOf5uQk3vHQcQ5Did6kOI+eheYztqeK6CvB6RrWxYbL2Af7Jl\nDwJb8yTKPc5paU4XxLfeunYI6hRpVBjWoJE9IVkCgYBmhDk/376QFaRZAy/FmuaN\n1IJmH93szMYdhpwlz85MmBnP4GwGOeccXOCqS/RMD+dNhA1ATKlRRdw6Y/q2RNSv\nMpg0Kc7sH7bDWJ3wAd6S0CknSntf/6/vX9EeSI4gGwYm8NzCuR2miRl3yMtPp7x/\nxWlvQuYZJbdlUu0iP3MtcA==\n-----END PRIVATE KEY-----",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "RS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						},
+						{
+							"key": "header",
+							"value": "{}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "{{ContentTypeJson}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/users/test-auth",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"users",
+						"test-auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User by External",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Api-Host}}/users/me",
+					"host": [
+						"{{Api-Host}}"
+					],
+					"path": [
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User by Internal",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Api-Host}}/users/7/internal",
+					"host": [
+						"{{Api-Host}}"
+					],
+					"path": [
+						"users",
+						"7",
+						"internal"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"1234\" \n} "
+				},
+				"url": {
+					"raw": "{{Api-Host}}/users",
+					"host": [
+						"{{Api-Host}}"
+					],
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "externalId",
+							"value": "123",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Wallet",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{Api-Host}}/wallets",
+					"host": [
+						"{{Api-Host}}"
+					],
+					"path": [
+						"wallets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Wallet Balance",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"123\",\n  \"name\": \"John Doe\",\n  \"exp\": 1780624727,\n  \"iat\": 1516239022\n}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "privateKey",
+							"value": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCZ43Hsndp5aRnJ\nNhdlJ0oxGqRW6TDn5tosDWd4HwU/RQrr68y0XkHWRRz3VrCflJl4Ke5pZ5a3VYtG\nmg2tjOfNdzzm2JuHb9Y1qiVTwiin5dKG7aICIJD7l6vm5GIYzl+R2e03p0t9cnX5\najzflZq6R9lhpALp1KL+1QjXTDCzPMBZ2ioSLYkV4xi17foTtrRu9KWs78B/iDv4\neZUazTwwHaA7BTvRwkiNMLGUAy2Y0EpWAR1EOFpos4f7M88P1MNXIbhb1KmJHQlG\nx+GL0bPyVqZaD17DGQtyP5hzE6V5/IhrR7c9qZOGs+2ZX5+h1JohDX8D+Gvm064y\n9mUvzkHjAgMBAAECggEABj4LOdTCI41jDqme9pm/Ip0nalpkJhzIX+90WjZrjxG+\nXWZOSEjy5o80bMdbjSq3heiZ5O8NnFg9LUO4hFGkSkKRtCShDhzDuIhKom1A1R9x\nlCgkG5y1qrHtK0uM6msMrwoDOJL9iE5dr6hLfMJYL0G3xrLRfftJtVpBSXbajuCA\nt1MabJQneyiDNNn00l3iPXt3yjZ2s7bgcjeLdyh/PumajtGLbpPyQbyNc6SDKlcX\n/srpfK6+R5rY1s5NwYu/9+0/D+IeBzELI63pFAuJo3ATvXT+eJg23J3zfb5ENJYx\nPQy4Zjlq0IoQJ2KhB3LnD+zZcwasSHR/B+M/BqaycQKBgQDHjttcswhu4bn+TdCj\nFBQtiDqYJNL20G9HgQHn07uAb5so/sKFSGZH7r9ydQ60jrdr8SZygIomIM3LFvnf\nQ1q6+fwJ77nE/d9KLok/zsE6aY+T118I6ZidRiyXC6NDvxZ8RJfQ6GyXDOjHojUT\ncLArEfiNOd35Llzzg9LevHc42wKBgQDFadl43NgBv9W+yO3zG6IMXjlQLGMwViI+\nx/RrlFZ1gOy0ocYHVccty4cLQnK1tjKpUbnxbH4PQH8jp+VaC7rVoROsyk9AaEdV\n4wOd2ODmU1NOhZg09LAG5bDTOokeDnaWgYZlflbpmxbDCxOkRHF3Mw1+XAHPamE5\nz6bNn6MFmQKBgGhweJfETyaQ1mGkYgvnR0QpJtlXdF2d6o9WkiO9KUVno6HJ6w4M\nPRNqfSGu57pRcud4NvH4GdUol+uxI6bYPlTa3jBpGSVi5IiTYFtXnsMuWek6707f\nynKNNmr6uUCMcn0o/PdlnOdU50MLvpFlCZ4Q8q8e2PA/doAvvp25rv+/AoGARelD\na8sB8DSolIUBx4tsquafc2YUxmRqgkM7qvGAYOKEcT+tKqHVBMHEFFe22eUpMc9Q\ng1ABoJMds1ndHjNzOf5uQk3vHQcQ5Did6kOI+eheYztqeK6CvB6RrWxYbL2Af7Jl\nDwJb8yTKPc5paU4XxLfeunYI6hRpVBjWoJE9IVkCgYBmhDk/376QFaRZAy/FmuaN\n1IJmH93szMYdhpwlz85MmBnP4GwGOeccXOCqS/RMD+dNhA1ATKlRRdw6Y/q2RNSv\nMpg0Kc7sH7bDWJ3wAd6S0CknSntf/6/vX9EeSI4gGwYm8NzCuR2miRl3yMtPp7x/\nxWlvQuYZJbdlUu0iP3MtcA==\n-----END PRIVATE KEY-----",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "RS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						},
+						{
+							"key": "header",
+							"value": "{}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Api-Host}}/wallets/0x9D70262212CA706A6Db11db80618Ec8897C0E4C2/balance",
+					"host": [
+						"{{Api-Host}}"
+					],
+					"path": [
+						"wallets",
+						"0x9D70262212CA706A6Db11db80618Ec8897C0E4C2",
+						"balance"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign Message",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"message\": \"hello\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Api-Host}}/wallets/{{Wallet-Address}}/sign",
+					"host": [
+						"{{Api-Host}}"
+					],
+					"path": [
+						"wallets",
+						"{{Wallet-Address}}",
+						"sign"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{Auth-Token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

@@ -1,5 +1,10 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
+export class CreateWalletDto {
+  id: number;
+  address: string;
+}
+
 export class SignMessageRequestDto {
   @IsString()
   @IsNotEmpty()

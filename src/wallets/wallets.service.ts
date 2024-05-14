@@ -17,6 +17,7 @@ import { decryptPrivateKey, encryptPrivateKey } from './encryption.utils';
 import { UsersService } from '../users/users.service';
 import { Wallet } from './wallets.entity';
 import {
+  CreateWalletDto,
   GetBalanceDto,
   SendTransactionDto,
   SignMessageDto,
@@ -56,7 +57,7 @@ export class WalletsService {
     }
   }
 
-  async createWallet(externalUserId: string): Promise<Wallet> {
+  async createWallet(externalUserId: string): Promise<CreateWalletDto> {
     // Look up or create the user
     let user: User;
     try {
@@ -89,7 +90,15 @@ export class WalletsService {
       amountInEther: this.blockchainConfig.fundingAmountEth,
     });
 
-    return savedWallet;
+    const createWalletDto: CreateWalletDto = {
+      id: savedWallet.id,
+      address: savedWallet.address,
+    };
+
+    this.logger.debug(
+      `Created wallet ${createWalletDto.address} for user ${savedWallet.user.externalId}`,
+    );
+    return createWalletDto;
   }
 
   async getBalance(getBalanceDto: GetBalanceDto): Promise<string> {

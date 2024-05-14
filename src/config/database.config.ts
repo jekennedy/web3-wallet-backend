@@ -7,4 +7,6 @@ export default registerAs(ConfigKeys.CONFIG_DATABASE, () => ({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
+  sslEnabled: process.env.DB_SSL_ENABLED,
+  sslRejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED,
 }));

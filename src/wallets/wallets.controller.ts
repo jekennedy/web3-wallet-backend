@@ -12,6 +12,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 import { WalletsService } from './wallets.service';
 import {
+  CreateWalletDto,
   GetBalanceDto,
   SendTransactionDto,
   SendTransactionRequestDto,
@@ -19,7 +20,6 @@ import {
   SignMessageRequestDto,
 } from './wallets.dto';
 import { validateDTO } from 'src/utils/validation-utils';
-import { Wallet } from './wallets.entity';
 
 @Controller('wallets')
 export class WalletsController {
@@ -27,8 +27,11 @@ export class WalletsController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  async createWallet(@Req() req: Request): Promise<Wallet> {
-    return this.walletsService.createWallet(req.user.userId);
+  async createWallet(@Req() req: Request): Promise<CreateWalletDto> {
+    try {
+      const createdWallet = this.walletsService.createWallet(req.user.userId);
+      return createdWallet;
+    } catch (error) {}
   }
 
   @Get(':address/balance')
