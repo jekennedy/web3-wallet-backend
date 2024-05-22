@@ -28,10 +28,8 @@ export class WalletsController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   async createWallet(@Req() req: Request): Promise<CreateWalletDto> {
-    try {
-      const createdWallet = this.walletsService.createWallet(req.user.userId);
-      return createdWallet;
-    } catch (error) {}
+    const createdWallet = this.walletsService.createWallet(req.user.userId);
+    return createdWallet;
   }
 
   @Get(':address/balance')
@@ -81,7 +79,6 @@ export class WalletsController {
     };
     validateDTO(sendTransactionDto);
 
-    // Call the service method to handle the transaction logic
     const transactionHash =
       await this.walletsService.sendTransaction(sendTransactionDto);
     return { transactionHash };

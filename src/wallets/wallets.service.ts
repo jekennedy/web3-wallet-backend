@@ -31,7 +31,6 @@ import { getCurrentGasPrices } from 'src/utils/blockchain-utils';
 @Injectable()
 export class WalletsService {
   private readonly logger = new Logger(WalletsService.name);
-  private readonly encryptionKey: string;
   private readonly blockchainConfig: BlockchainConfig;
 
   constructor(
@@ -44,10 +43,6 @@ export class WalletsService {
     @InjectRepository(Transaction)
     private transactionRepository: Repository<Transaction>,
   ) {
-    this.encryptionKey = this.configService.get<string>(
-      ConfigKeys.ENCRYPTION_KEY,
-      { infer: true },
-    );
     this.blockchainConfig = this.configService.get<BlockchainConfig>(
       ConfigKeys.CONFIG_BLOCKCHAIN,
     );
@@ -64,41 +59,58 @@ export class WalletsService {
       user = await this.usersService.findOneByExternalId(externalUserId);
     } catch (error) {
       if (error instanceof NotFoundException) {
-        user = await this.usersService.createUser({
-          userId: externalUserId,
-        });
+        try {
+          // user doesn't exist, so create the user record
+          user = await this.usersService.createUser({ userId: externalUserId });
+        } catch (createUserError) {
+          this.logger.error(`Error creating user ${externalUserId}: ${createUserError.message}`);
+          throw new HttpException(
+            'Error creating user',
+            HttpStatus.INTERNAL_SERVER_ERROR
+          );
+        }
       } else {
-        this.logger.error(
-          `createWallet(): Error looking up user ${externalUserId}: ${error}`,
+        this.logger.error(`Error looking up user ${externalUserId}: ${error.message}`);
+        throw new HttpException(
+          'Error looking up user',
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
       }
     }
+  
+    try {
+      const wallet = ethers.Wallet.createRandom();
+  
+      const newWallet = this.walletRepository.create({
+        address: wallet.address,
+        privateKey: encryptPrivateKey(wallet.privateKey, this.blockchainConfig.encryptionKey),
+        user: user,
+      });
+  
+      const savedWallet = await this.walletRepository.save(newWallet);
+  
+      // Fund the wallet to get them started. Don't 'await' as createWallet shouldn't block
+      this.fundWallet({
+        destination: savedWallet.address,
+        amountInEther: this.blockchainConfig.fundingAmountEth,
+      }).catch((fundWalletError) => {
+        this.logger.error(`Error funding wallet ${savedWallet.address}: ${fundWalletError.message}`);
+      });
 
-    const wallet = ethers.Wallet.createRandom();
-
-    const newWallet = this.walletRepository.create({
-      address: wallet.address,
-      privateKey: encryptPrivateKey(wallet.privateKey, this.encryptionKey),
-      user: user,
-    });
-
-    const savedWallet = await this.walletRepository.save(newWallet);
-
-    // fund the wallet to get them started
-    this.fundWallet({
-      destination: savedWallet.address,
-      amountInEther: this.blockchainConfig.fundingAmountEth,
-    });
-
-    const createWalletDto: CreateWalletDto = {
-      id: savedWallet.id,
-      address: savedWallet.address,
-    };
-
-    this.logger.debug(
-      `Created wallet ${createWalletDto.address} for user ${savedWallet.user.externalId}`,
-    );
-    return createWalletDto;
+      const createWalletDto: CreateWalletDto = {
+        id: savedWallet.id,
+        address: savedWallet.address,
+      };
+  
+      this.logger.debug(`Created wallet ${createWalletDto.address} for user ${savedWallet.user.externalId}`);
+      return createWalletDto;
+    } catch (error) {
+      this.logger.error(`Error creating wallet for user ${externalUserId}: ${error.message}`);
+      throw new HttpException(
+        `Error creating wallet: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   async getBalance(getBalanceDto: GetBalanceDto): Promise<string> {
@@ -120,7 +132,7 @@ export class WalletsService {
     });
 
     const signer = new ethers.Wallet(
-      decryptPrivateKey(wallet.privateKey, this.encryptionKey),
+      decryptPrivateKey(wallet.privateKey, this.blockchainConfig.encryptionKey),
     );
     return signer.signMessage(signMessageDto.message);
   }
@@ -136,7 +148,7 @@ export class WalletsService {
     });
 
     const signer = new ethers.Wallet(
-      decryptPrivateKey(wallet.privateKey, this.encryptionKey),
+      decryptPrivateKey(wallet.privateKey, this.blockchainConfig.encryptionKey),
       this.ethersProvider,
     );
 

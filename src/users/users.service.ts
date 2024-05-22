@@ -19,10 +19,16 @@ export class UsersService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    // Check if user already exists to prevent duplicates
-    const existingUser = await this.repository.findOne({
-      where: { externalId: createUserDto.userId },
-    });
+    let existingUser: User;
+    try {
+      // Check if user already exists to prevent duplicates
+      existingUser = await this.repository.findOne({
+        where: { externalId: createUserDto.userId },
+      });
+    } catch (error) {
+      this.logger.error(`Error checking existing user: ${error.message}`);
+      throw new BadRequestException('Error checking existing user');
+    }
 
     if (existingUser) {
       throw new BadRequestException(
@@ -30,41 +36,66 @@ export class UsersService {
       );
     }
 
-    // Create a new user entity and save it
-    const newUser = this.repository.create({
-      externalId: createUserDto.userId,
-    });
+    try {
+      // Create a new user entity and save it
+      const newUser = this.repository.create({
+        externalId: createUserDto.userId,
+      });
 
-    this.logger.debug('Created user: ', newUser.id);
-    return await this.repository.save(newUser);
+      const savedUser = await this.repository.save(newUser);
+      this.logger.debug(`Created user: ${savedUser.id}`);
+      return savedUser;
+    } catch (error) {
+      this.logger.error(`Failed to create user: ${error.message}`);
+      throw new BadRequestException('Failed to create user');
+    }
   }
 
   async findAll(): Promise<User[]> {
-    const users = await this.repository.find({
-      relations: ['wallets', 'transactions'],
-    });
-    return users;
+    try {
+      const users = await this.repository.find({
+        relations: ['wallets', 'transactions'],
+      });
+      return users;
+    } catch (error) {
+      this.logger.error(`Failed to fetch users: ${error.message}`);
+      throw new BadRequestException('Failed to fetch users');
+    }
   }
 
   async findOne(id: number): Promise<User> {
-    const user = await this.repository.findOne({
-      where: { id },
-      relations: ['wallets', 'transactions'],
-    });
+    let user: User;
+    try {
+      user = await this.repository.findOne({
+        where: { id },
+        relations: ['wallets', 'transactions'],
+      });
+    } catch (error) {
+      this.logger.error(`Error fetching user by ID ${id}: ${error.message}`);
+      throw new BadRequestException('Failed to fetch user');
+    }
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found.`);
     }
 
-    this.logger.debug('Found user by internal id: ', user.id);
+    this.logger.debug(`Found user by internal ID: ${user.id}`);
     return user;
   }
 
   async findOneByExternalId(externalId: string): Promise<User> {
-    const user = await this.repository.findOne({
-      where: { externalId: externalId },
-      relations: ['wallets', 'transactions'],
-    });
+    let user: User;
+    try {
+      user = await this.repository.findOne({
+        where: { externalId },
+        relations: ['wallets', 'transactions'],
+      });
+    } catch (error) {
+      this.logger.error(
+        `Error fetching user by external ID ${externalId}: ${error.message}`,
+      );
+      throw new BadRequestException('Failed to fetch user');
+    }
 
     if (!user) {
       throw new NotFoundException(
@@ -72,7 +103,7 @@ export class UsersService {
       );
     }
 
-    this.logger.debug('Found user by external id: ', user.externalId);
+    this.logger.debug(`Found user by external ID: ${user.externalId}`);
     return user;
   }
 
